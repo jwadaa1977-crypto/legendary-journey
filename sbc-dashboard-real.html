@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0b0f17">
+<title>SBC – SMART BOX CONTROL</title>
+<style>
+:root{
+  --bg:#080c13;--panel:#111824;--panel2:#172131;--text:#eef3f8;--muted:#8e9aac;
+  --cyan:#22d3ee;--green:#34d399;--amber:#fcd34d;--red:#fb7185;--blue:#60a5fa;
+  --border:#263244;--shadow:0 14px 40px rgba(0,0,0,.28)
+}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:"Segoe UI",Tahoma,Arial,sans-serif}
+body{padding-bottom:env(safe-area-inset-bottom)}
+button,input,select{font:inherit}
+button{cursor:pointer}
+.app{max-width:1080px;margin:auto;padding:12px 14px 90px}
+header{position:sticky;top:0;z-index:20;background:rgba(8,12,19,.93);backdrop-filter:blur(16px);padding:10px 0 12px;border-bottom:1px solid var(--border)}
+.head{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.brand{display:flex;align-items:center;gap:10px}.logo{width:45px;height:45px;border-radius:13px;display:grid;place-items:center;background:linear-gradient(135deg,#0d2431,#182536);border:1px solid #284257;font-size:23px;box-shadow:0 0 22px rgba(34,211,238,.13)}
+.title{font-weight:900;font-size:1.05rem}.sub{font-size:.72rem;color:var(--muted);margin-top:2px}
+.icon{width:42px;height:42px;border:1px solid var(--border);background:var(--panel2);color:var(--text);border-radius:12px}
+.banner{margin-top:10px;border:1px solid var(--border);border-radius:14px;padding:10px 12px;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.banner.demo{border-color:#6c5b20;background:rgba(252,211,77,.08);color:var(--amber)}
+.banner.real{border-color:#1c6a52;background:rgba(52,211,153,.08);color:var(--green)}
+.banner .small{font-size:.72rem;color:var(--muted);display:block;margin-top:2px}
+.btn{border:1px solid var(--border);background:var(--panel2);color:var(--text);border-radius:10px;padding:9px 12px}
+.btn.primary{background:var(--cyan);color:#031017;border-color:var(--cyan);font-weight:800}
+.btn.danger{background:rgba(251,113,133,.1);color:var(--red);border-color:rgba(251,113,133,.3)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.toolbar{display:flex;gap:8px;overflow:auto;padding:12px 0 3px}
+.toolbar .btn{white-space:nowrap}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:12px}
+.stat{background:var(--panel);border:1px solid var(--border);border-radius:15px;padding:12px}.stat b{font-size:1.35rem}.stat span{display:block;color:var(--muted);font-size:.7rem;margin-top:3px}
+.section-title{display:flex;align-items:center;justify-content:space-between;margin:20px 3px 9px}.section-title h2{font-size:1rem;margin:0}.section-title span{color:var(--muted);font-size:.75rem}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}
+.card{background:var(--panel);border:1px solid var(--border);border-radius:17px;padding:13px;min-height:166px;display:flex;flex-direction:column;gap:9px;box-shadow:var(--shadow)}
+.card.on{border-color:rgba(34,211,238,.6);box-shadow:0 0 0 1px rgba(34,211,238,.16) inset,0 10px 30px rgba(34,211,238,.06)}
+.card.offline{opacity:.78}.top{display:flex;justify-content:space-between;align-items:flex-start}.devicon{font-size:2rem;filter:drop-shadow(0 0 6px rgba(255,255,255,.15))}
+.switch{width:48px;height:27px;border:0;border-radius:20px;background:#283244;position:relative;padding:0}.switch:after{content:"";position:absolute;width:23px;height:23px;border-radius:50%;top:2px;right:2px;background:#fff;transition:.18s}.switch.on{background:var(--cyan)}.switch.on:after{transform:translateX(-21px)}
+.name{font-weight:800}.room{font-size:.72rem;color:var(--muted)}.state{align-self:flex-start;font-size:.7rem;padding:4px 8px;border-radius:7px}.state.on{color:var(--green);background:rgba(52,211,153,.13)}.state.off{color:var(--muted);background:rgba(142,154,172,.12)}.state.offline{color:var(--red);background:rgba(251,113,133,.12)}.pending{color:var(--amber)!important;background:rgba(252,211,77,.12)!important}
+.energy{background:linear-gradient(135deg,#101a25,#101822);border:1px solid var(--border);border-radius:17px;padding:15px}.energyrow{display:flex;justify-content:space-between;gap:12px}.metric b{font-size:1.45rem}.metric small{display:block;color:var(--muted);font-size:.7rem;margin-top:3px}
+.activity{display:flex;flex-direction:column;gap:8px}.event{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:10px;font-size:.78rem;display:flex;justify-content:space-between;gap:8px}.event small{color:var(--muted)}
+.empty{text-align:center;color:var(--muted);padding:35px 10px;border:1px dashed var(--border);border-radius:16px}
+.fab{position:fixed;left:18px;bottom:calc(18px + env(safe-area-inset-bottom));width:56px;height:56px;border:0;border-radius:50%;background:var(--cyan);color:#031017;font-size:1.9rem;box-shadow:0 10px 30px rgba(34,211,238,.3);z-index:25}
+.modalbg{position:fixed;inset:0;background:rgba(0,0,0,.68);display:none;align-items:flex-end;z-index:50}.modalbg.show{display:flex}
+.modal{width:100%;max-width:620px;margin:auto;background:var(--panel);border:1px solid var(--border);border-radius:20px 20px 0 0;padding:18px;max-height:90vh;overflow:auto}
+.modal h3{margin:0 0 16px}.field{margin:10px 0}.field label{display:block;color:var(--muted);font-size:.76rem;margin-bottom:6px}.field input,.field select{width:100%;padding:11px;border-radius:10px;border:1px solid var(--border);background:var(--panel2);color:var(--text);outline:none}.field input:focus,.field select:focus{border-color:var(--cyan)}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:8px}.actions{display:flex;gap:8px;margin-top:14px}.actions>*{flex:1}
+.tabs{display:flex;gap:7px;border-bottom:1px solid var(--border);padding-bottom:8px;margin-bottom:12px}.tab{background:none;border:0;color:var(--muted);padding:7px 9px}.tab.active{color:var(--cyan);font-weight:800;border-bottom:2px solid var(--cyan)}
+.notice{padding:10px;border-radius:10px;background:rgba(96,165,250,.08);border:1px solid rgba(96,165,250,.2);color:#b9d7ff;font-size:.75rem;line-height:1.6}
+.loading{opacity:.65;pointer-events:none}.toast{position:fixed;right:50%;transform:translateX(50%);bottom:86px;z-index:80;background:#172131;border:1px solid var(--border);padding:10px 14px;border-radius:11px;display:none;font-size:.78rem}.toast.show{display:block}
+footer{text-align:center;color:#59677a;font-size:.68rem;margin-top:25px}
+@media(max-width:650px){.stats{grid-template-columns:repeat(2,1fr)}}
+@media(min-width:800px){.grid{grid-template-columns:repeat(4,1fr)}.modal{border-radius:20px}.modalbg{align-items:center}}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+<header>
+  <div class="head">
+    <div class="brand"><div class="logo">🤖</div><div><div class="title">SBC – SMART BOX CONTROL</div><div class="sub" id="tagline">تحكم ذكي • أتمتة ذكية • أمان ذكي • طاقة ذكية</div></div></div>
+    <button class="icon" onclick="openSettings()">⚙️</button>
+  </div>
+  <div id="banner" class="banner demo"></div>
+  <div class="toolbar">
+    <button class="btn" onclick="setAll('ON')">🟢 تشغيل الكل</button>
+    <button class="btn" onclick="setAll('OFF')">⚪ إطفاء الكل</button>
+    <button class="btn" onclick="refreshAll()">↻ تحديث</button>
+    <button class="btn" onclick="openAdd()">＋ جهاز</button>
+  </div>
+</header>
+
+<div class="stats">
+  <div class="stat"><b id="statTotal">0</b><span>الأجهزة</span></div>
+  <div class="stat"><b id="statOnline">0</b><span>متصل</span></div>
+  <div class="stat"><b id="statOn">0</b><span>مُشغّل</span></div>
+  <div class="stat"><b id="statEvents">0</b><span>العمليات</span></div>
+</div>
+
+<div class="section-title"><h2>الأجهزة</h2><span id="connection">غير متصل بالخادم</span></div>
+<div id="deviceGrid" class="grid"></div>
+<div id="empty" class="empty" style="display:none">لا توجد أجهزة. أضف جهازًا من زر ＋.</div>
+
+<div class="section-title"><h2>⚡ الطاقة</h2><span>بيانات النظام</span></div>
+<div class="energy"><div class="energyrow">
+  <div class="metric"><b id="power">—</b><small>القدرة الحالية W</small></div>
+  <div class="metric"><b id="kwh">—</b><small>استهلاك اليوم kWh</small></div>
+  <div class="metric"><b id="voltage">—</b><small>الجهد V</small></div>
+</div></div>
+
+<div class="section-title"><h2>آخر العمليات</h2><span>Audit</span></div>
+<div id="activity" class="activity"></div>
+
+<footer>SBC – Smart Box Control • DEMO لا يتحكم في كهرباء حقيقية • REAL يحتاج Backend + MQTT + ESP32</footer>
+</div>
+
+<button class="fab" onclick="openAdd()">＋</button>
+<div id="toast" class="toast"></div>
+
+<!-- Settings -->
+<div id="settings" class="modalbg" onclick="backdrop(event,'settings')"><div class="modal">
+<h3>⚙️ إعدادات SBC</h3>
+<div class="tabs"><button class="tab active" id="tabGeneral" onclick="showTab('general')">عام</button><button class="tab" id="tabConnection" onclick="showTab('connectionTab')">الاتصال</button><button class="tab" id="tabAccount" onclick="showTab('account')">الحساب</button></div>
+<div id="general">
+  <div class="field"><label>اللغة</label><div class="row"><button class="btn" onclick="setLang('ar')">العربية</button><button class="btn" onclick="setLang('fr')">Français</button></div><button class="btn" style="margin-top:8px;width:100%" onclick="setLang('en')">English</button></div>
+  <div class="field"><label>الوضع</label><div class="row"><button class="btn" onclick="setMode('DEMO')">🧪 DEMO</button><button class="btn" onclick="setMode('REAL')">🟢 REAL</button></div></div>
+  <div class="notice">في REAL لا يتم اعتبار الجهاز مُشغّلًا إلا بعد أن يرسل الخادم/ESP32 الحالة الحقيقية.</div>
+</div>
+<div id="connectionTab" style="display:none">
+  <div class="field"><label>Backend API URL</label><input id="apiUrl" placeholder="https://sbc.example.com"></div>
+  <div class="field"><label>WebSocket URL (اختياري)</label><input id="wsUrl" placeholder="wss://sbc.example.com/ws"></div>
+  <div class="field"><label><input id="apiEnabled" type="checkbox" style="width:auto"> تفعيل الاتصال بالخادم في REAL</label></div>
+  <div class="notice">لا تضع كلمات مرور MQTT أو مفاتيح خاصة داخل هذا الملف. بيانات المصادقة يديرها Backend. بعد تسجيل الدخول، الأمر (token) كيتبعث تلقائيًا مع كل طلب API وWebSocket كـ Authorization: Bearer. جهاز جديد كيتضاف محليًا فورًا، وكيتبعث اختياريًا لـ /api/devices إذا كان هاد الـ endpoint موجود عندك.</div>
+</div>
+<div id="account" style="display:none">
+  <div class="field"><label>البريد الإلكتروني</label><input id="email" type="email" autocomplete="username"></div>
+  <div class="field"><label>كلمة المرور</label><input id="password" type="password" autocomplete="current-password"></div>
+  <div class="row"><button class="btn primary" onclick="login()">تسجيل الدخول</button><button class="btn danger" onclick="logout()">تسجيل الخروج</button></div>
+  <div id="authStatus" class="notice" style="margin-top:10px">غير مسجل الدخول</div>
+</div>
+<div class="actions"><button class="btn" onclick="saveSettings()">حفظ</button><button class="btn" onclick="closeModal('settings')">إغلاق</button></div>
+</div></div>
+
+<!-- Add -->
+<div id="add" class="modalbg" onclick="backdrop(event,'add')"><div class="modal">
+<h3>＋ إضافة جهاز</h3>
+<div class="field"><label>اسم الجهاز</label><input id="newName" placeholder="نور الصالون"></div>
+<div class="field"><label>الغرفة</label><input id="newRoom" placeholder="الصالون"></div>
+<div class="row"><div class="field"><label>النوع</label><select id="newType"><option value="LIGHT">💡 إنارة</option><option value="PLUG">🔌 مقبس</option><option value="AC">❄️ مكيف</option><option value="GATE">🚪 بوابة</option><option value="PUMP">💧 مضخة</option><option value="CURTAIN">🪟 ستارة</option><option value="RELAY">🔗 Relay</option><option value="SENSOR">📡 حساس</option></select></div><div class="field"><label>معرّف الجهاز/Relay</label><input id="newDeviceId" placeholder="relay-1"></div></div>
+<div class="actions"><button class="btn primary" onclick="addDevice()">إضافة</button><button class="btn" onclick="closeModal('add')">إلغاء</button></div>
+</div></div>
+
+<script>
+const ICONS={LIGHT:'💡',PLUG:'🔌',AC:'❄️',GATE:'🚪',PUMP:'💧',CURTAIN:'🪟',RELAY:'🔗',SENSOR:'📡'};
+const DEFAULT={
+  lang:'ar',mode:'DEMO',apiUrl:'',wsUrl:'',apiEnabled:false,
+  devices:[
+    {id:'d1',name:'نور الصالون',room:'الصالون',type:'LIGHT',state:'ON',online:true},
+    {id:'d2',name:'مقبس التلفاز',room:'الصالون',type:'PLUG',state:'OFF',online:true},
+    {id:'d3',name:'بوابة الكراج',room:'الكراج',type:'GATE',state:'OFF',online:true},
+    {id:'d4',name:'مضخة الماء',room:'الحديقة',type:'PUMP',state:'OFFLINE',online:false}
+  ],
+  events:[]
+};
+let state=loadState();
+let pending=new Set();
+let socket=null;
+
+function loadState(){try{return {...DEFAULT,...JSON.parse(localStorage.getItem('sbc_real_ui')||'{}')};}catch{return {...DEFAULT}}}
+function save(){localStorage.setItem('sbc_real_ui',JSON.stringify(state))}
+function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]))}
+function toast(msg){const x=document.getElementById('toast');x.textContent=msg;x.classList.add('show');setTimeout(()=>x.classList.remove('show'),2200)}
+function openSettings(){document.getElementById('settings').classList.add('show');document.getElementById('apiUrl').value=state.apiUrl||'';document.getElementById('wsUrl').value=state.wsUrl||'';document.getElementById('apiEnabled').checked=!!state.apiEnabled}
+function openAdd(){document.getElementById('add').classList.add('show')}
+function closeModal(id){document.getElementById(id).classList.remove('show')}
+function backdrop(e,id){if(e.target.id===id)closeModal(id)}
+function showTab(id){['general','connectionTab','account'].forEach(x=>document.getElementById(x).style.display=x===id?'block':'none');['tabGeneral','tabConnection','tabAccount'].forEach(x=>document.getElementById(x).classList.remove('active'));document.getElementById(id==='general'?'tabGeneral':id==='connectionTab'?'tabConnection':'tabAccount').classList.add('active')}
+function setLang(l){state.lang=l;save();render()}
+function setMode(m){state.mode=m;save();render();syncConnection()}
+function saveSettings(){state.apiUrl=document.getElementById('apiUrl').value.trim().replace(/\/$/,'');state.wsUrl=document.getElementById('wsUrl').value.trim();state.apiEnabled=document.getElementById('apiEnabled').checked;save();closeModal('settings');render();syncConnection();toast('تم حفظ الإعدادات')}
+async function addDevice(){
+ const name=document.getElementById('newName').value.trim(); if(!name){toast('اكتب اسم الجهاز');return}
+ const room=document.getElementById('newRoom').value.trim()||'-',type=document.getElementById('newType').value,id=document.getElementById('newDeviceId').value.trim()||('d'+Date.now());
+ const device={id,name,room,type,state:'OFF',online:true};
+ state.devices.push(device);eventLog('إضافة جهاز '+name);save();render();closeModal('add');
+ document.getElementById('newName').value='';document.getElementById('newRoom').value='';document.getElementById('newDeviceId').value='';
+ if(isReal()&&state.apiEnabled&&state.apiUrl){
+   try{await api('/api/devices',{method:'POST',body:JSON.stringify(device)})}catch{}
+ }
+}
+function eventLog(text){state.events.unshift({text,time:new Date().toLocaleString('ar-MA')});state.events=state.events.slice(0,12);save()}
+function isReal(){return state.mode==='REAL'}
+function apiBase(){return state.apiUrl||location.origin}
+async function api(path,opts={}){
+ const token=sessionStorage.getItem('sbc_access_token');
+ const headers={'Content-Type':'application/json',...(token?{'Authorization':'Bearer '+token}:{}),...(opts.headers||{})};
+ const res=await fetch(apiBase()+path,{...opts,headers,credentials:'include'});
+ if(!res.ok)throw new Error('HTTP '+res.status);
+ const ct=res.headers.get('content-type')||'';return ct.includes('application/json')?res.json():res.text()
+}
+async function command(id,action){
+ const d=state.devices.find(x=>x.id===id);if(!d||d.state==='OFFLINE')return;
+ if(!isReal()){d.state=action.toUpperCase();eventLog(`${d.name}: ${action}`);save();render();return}
+ if(!state.apiEnabled||!state.apiUrl){toast('اضبط Backend API أولًا');return}
+ pending.add(id);render();
+ try{
+   await api(`/api/relays/${encodeURIComponent(id)}/${action}`,{method:'POST'});
+   eventLog(`${d.name}: أُرسل أمر ${action} — بانتظار الحالة الحقيقية`);
+   toast('تم إرسال الأمر إلى الخادم');
+   scheduleRefresh();
+ }catch(e){toast('فشل إرسال الأمر إلى الخادم');eventLog(`${d.name}: فشل الأمر`)}
+ finally{pending.delete(id);render()}
+}
+function toggle(id){const d=state.devices.find(x=>x.id===id);if(!d)return;command(id,d.state==='ON'?'off':'on')}
+async function setAll(action){
+ if(!isReal()){state.devices.forEach(d=>{if(d.online)d.state=action});eventLog('تشغيل/إطفاء جميع الأجهزة');save();render();return}
+ if(!state.apiEnabled||!state.apiUrl){toast('اضبط Backend API أولًا');return}
+ try{await api(`/api/relays/all/${action}`,{method:'POST'});toast('تم إرسال الأمر لجميع الأجهزة');scheduleRefresh()}catch{toast('تعذر إرسال الأمر')}
+}
+async function refreshAll(){
+ if(isReal()&&state.apiEnabled&&state.apiUrl){
+   try{
+     const data=await api('/api/dashboard');
+     if(Array.isArray(data.devices)){
+       const serverIds=new Set(data.devices.map(x=>x.id));
+       const localOnly=state.devices.filter(x=>!serverIds.has(x.id));
+       state.devices=[...data.devices,...localOnly];
+     }
+     if(data.energy){document.getElementById('power').textContent=data.energy.power??'—';document.getElementById('kwh').textContent=data.energy.kwhToday??'—';document.getElementById('voltage').textContent=data.energy.voltage??'—'}
+     document.getElementById('connection').textContent='متصل بالخادم';save();render();return
+   }catch{document.getElementById('connection').textContent='فشل الاتصال';toast('تعذر تحديث البيانات')}
+ }
+ render()
+}
+function connectWS(){
+ if(socket)try{socket.close()}catch{}
+ if(!state.wsUrl)return;
+ try{
+   const token=sessionStorage.getItem('sbc_access_token');
+   const url=token?state.wsUrl+(state.wsUrl.includes('?')?'&':'?')+'token='+encodeURIComponent(token):state.wsUrl;
+   socket=new WebSocket(url);
+   socket.onopen=()=>{document.getElementById('connection').textContent='WebSocket متصل'}
+   socket.onmessage=e=>{try{const m=JSON.parse(e.data);handleEvent(m)}catch{}}
+   socket.onclose=()=>{document.getElementById('connection').textContent='WebSocket غير متصل'}
+ }catch{}
+}
+function syncConnection(){
+ if(isReal()&&state.apiEnabled&&state.wsUrl){connectWS()}
+ else if(socket){try{socket.close()}catch{}socket=null}
+}
+let refreshTimer=null;
+function scheduleRefresh(){clearTimeout(refreshTimer);refreshTimer=setTimeout(refreshAll,900)}
+function handleEvent(m){
+ if(m.type==='device_state'&&m.deviceId){
+   const d=state.devices.find(x=>x.id===m.deviceId);if(d){d.state=m.state;d.online=m.online!==false;pending.delete(d.id);eventLog(`${d.name}: ${m.state}`);save();render()}
+ }
+ if(m.type==='energy'&&m.data){document.getElementById('power').textContent=m.data.power??'—';document.getElementById('kwh').textContent=m.data.kwhToday??'—';document.getElementById('voltage').textContent=m.data.voltage??'—'}
+}
+async function login(){
+ if(!state.apiUrl){toast('أدخل Backend API URL');return}
+ try{
+  const email=document.getElementById('email').value.trim(),password=document.getElementById('password').value;
+  const r=await api('/api/auth/login',{method:'POST',body:JSON.stringify({email,password})});
+  if(r.token)sessionStorage.setItem('sbc_access_token',r.token);
+  document.getElementById('authStatus').textContent='تم تسجيل الدخول';toast('تم تسجيل الدخول');refreshAll()
+ }catch{document.getElementById('authStatus').textContent='فشل تسجيل الدخول';toast('بيانات الدخول غير صحيحة أو الخادم غير متاح')}
+}
+async function logout(){try{await api('/api/auth/logout',{method:'POST'})}catch{}sessionStorage.removeItem('sbc_access_token');document.getElementById('authStatus').textContent='تم تسجيل الخروج';toast('تم تسجيل الخروج')}
+function render(){
+ document.documentElement.dir=state.lang==='ar'?'rtl':'ltr';
+ document.getElementById('tagline').textContent=state.lang==='ar'?'تحكم ذكي • أتمتة ذكية • أمان ذكي • طاقة ذكية':'Smart control • Automation • Security • Energy';
+ const b=document.getElementById('banner');b.className='banner '+(isReal()?'real':'demo');
+ b.innerHTML=`<div><b>${isReal()?'🟢 الوضع الحقيقي REAL':'🧪 وضع المحاكاة DEMO'}</b><span class="small">${isReal()?'الأوامر تمر عبر Backend/MQTT عند تفعيل الاتصال':'الحالة محلية داخل المتصفح فقط'}</span></div><button class="btn" onclick="setMode('${isReal()?'DEMO':'REAL'}')">${isReal()?'→ DEMO':'REAL →'}</button>`;
+ const online=state.devices.filter(d=>d.online!==false&&d.state!=='OFFLINE').length,on=state.devices.filter(d=>d.state==='ON').length;
+ document.getElementById('statTotal').textContent=state.devices.length;document.getElementById('statOnline').textContent=online;document.getElementById('statOn').textContent=on;document.getElementById('statEvents').textContent=state.events.length;
+ const grid=document.getElementById('deviceGrid');document.getElementById('empty').style.display=state.devices.length?'none':'block';
+ grid.innerHTML=state.devices.map(d=>{
+  const off=d.online===false||d.state==='OFFLINE',isOn=d.state==='ON',wait=pending.has(d.id);
+  return `<div class="card ${isOn?'on':''} ${off?'offline':''}">
+   <div class="top"><div class="devicon">${ICONS[d.type]||'🔧'}</div><button class="switch ${isOn?'on':''}" ${off||wait?'disabled':''} onclick="toggle('${esc(d.id)}')"></button></div>
+   <div class="name">${esc(d.name)}</div><div class="room">${esc(d.room)}</div>
+   <div class="state ${wait?'pending':off?'offline':isOn?'on':'off'}">${wait?'⏳ بانتظار التأكيد':off?'غير متصل':isOn?'مُشغّل':'مُطفأ'}</div>
+  </div>`
+ }).join('');
+ document.getElementById('activity').innerHTML=state.events.length?state.events.slice(0,8).map(e=>`<div class="event"><span>${esc(e.text)}</span><small>${esc(e.time)}</small></div>`).join(''):'<div class="empty">لا توجد عمليات بعد.</div>';
+}
+render();
+syncConnection();
+</script>
+</body>
+</html>
